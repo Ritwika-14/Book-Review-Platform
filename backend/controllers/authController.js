@@ -46,5 +46,43 @@ export const signup = async (req, res) => {
 
 // User Login
 export const login = async (req, res) => {
-    // ... Login logic will go here next
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { username, password } = req.body;
+
+    try {
+        // 2. Check if the user exists
+        const user = await User.findOne({ username });
+        if (!user) {
+            // Use a generic message for security - don't reveal if username vs. password was wrong
+            return res.status(400).json({ msg: 'Invalid credentials' });
+        }
+
+        // 3. Compare the provided password with the hashed password in the database
+        const isMatch = await bcrypt.compare(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ msg: 'Invalid credentials' });
+        }
+
+        // 4. If credentials are correct, create and return a JWT
+        const payload = { user: { id: user.id } };
+
+        jwt.sign(
+            payload,
+            process.env.JWT_SECRET,
+            { expiresIn: '5h' }, // Token expires in 5 hours
+            (err, token) => {
+                if (err) throw err;
+                res.status(200).json({ token }); // Send 200 OK status with the token
+            }
+        );
+
+    } catch (err) {
+        // This catch block is crucial. If anything above fails, it sends a response.
+        console.error(err.message);
+        res.status(500).send('Server error');
+    }
 };

@@ -28,13 +28,24 @@ const reviewSchema = new mongoose.Schema({
 
 // After a new review is saved, recalculate the average rating for the book
 reviewSchema.post('save', async function() {
-    const bookId = this.book;
-    const reviews = await this.constructor.find({ book: bookId });
+  const review = this; // 'this' refers to the review that was just saved
+
+  try {
+    // 1. Find all reviews for the specific book that was just reviewed
+    const reviews = await mongoose.model('Review').find({ book: review.book });
+
+    // 2. Calculate the average rating
     const totalRating = reviews.reduce((acc, item) => item.rating + acc, 0);
     const averageRating = totalRating / reviews.length;
 
-    await Book.findByIdAndUpdate(bookId, { averageRating: averageRating.toFixed(2) });
+    // 3. Find the corresponding Book document and update its averageRating field
+    await Book.findByIdAndUpdate(review.book, { averageRating: averageRating });
+
+  } catch (error) {
+    console.error('Failed to update average rating:', error);
+  }
 });
+
 
 const Review = mongoose.model('Review', reviewSchema);
 
