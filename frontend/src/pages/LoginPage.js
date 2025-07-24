@@ -62,7 +62,7 @@ const LoginPage = () => {
             Login
           </button>
           <Link to="/signup" className="ml-10">
-  <p className="ml-10 underline text-blue-600 hover:text-blue-800">Sign up if no account exists</p>
+  <p className="ml-8 underline text-blue-600 hover:text-blue-800">Don't have an account? Sign up</p>
 </Link>
         </form>
       </div>

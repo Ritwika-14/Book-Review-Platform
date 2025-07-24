@@ -23,9 +23,9 @@ const SignupPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 px-4">
-      <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md">
-        <h2 className="text-3xl font-bold text-center text-green-700 mb-6">Sign Up</h2>
+    <div className="min-h-screen flex  justify-center bg-gray-100 px-4">
+      <div className="bg-slate-100 shadow-lg mt-10 rounded-lg p-8 w-[350px] h-[500px]">
+        <h2 className="text-3xl font-bold text-center text-blue-700 mb-6">Sign Up</h2>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
@@ -56,7 +56,7 @@ const SignupPage = () => {
 
           <button
             type="submit"
-            className="w-full bg-green-600 text-white font-semibold py-2 rounded-md hover:bg-green-700 transition"
+            className="w-full bg-blue-600 text-white font-semibold py-2 rounded-md hover:bg-blue-700 transition"
           >
             Sign Up
           </button>

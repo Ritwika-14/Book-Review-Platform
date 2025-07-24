@@ -19,13 +19,13 @@ const Navbar = () => {
           <div className="flex items-center space-x-8">
             <Link
               to="/"
-              className="text-2xl font-bold text-blue-600 hover:text-blue-700 transition duration-300"
+              className="text-2xl font-bold text-blue-600 hover:text-blue-300 transition duration-300"
             >
               Book Reviews
             </Link>
             <Link
               to="/add-book"
-              className="text-gray-700 hover:text-blue-500 font-medium transition duration-200"
+              className="text-2xl font-bold text-blue-600 hover:text-blue-300 transition duration-300"
             >
               Add Book
             </Link>
