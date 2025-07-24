@@ -14,7 +14,7 @@ const Navbar = () => {
     return (
         <nav style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: '#eee' }}>
             <div>
-                <Link to="/" style={{ marginRight: '1rem' }}>Book Reviews</Link>
+                <Link to="/" style={{ marginRight: '1rem' }}>Book List Page</Link>
                 <Link to="/add-book" style={{ marginRight: '1rem' }}>Add Book</Link>
             </div>
             <div>
