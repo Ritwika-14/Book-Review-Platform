@@ -1,128 +1,106 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { getBooks } from '../api'; // We only need getBooks from the API service
+import { getBooks } from '../api';
 
 const BookListPage = () => {
-    // State for the list of books and UI (loading/error)
     const [books, setBooks] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
-
-    // State to hold the text the user types into the filter inputs
     const [authorFilter, setAuthorFilter] = useState('');
     const [genreFilter, setGenreFilter] = useState('');
 
-    // This useEffect runs only ONCE when the component mounts
-    // to load the initial list of all books.
-    useEffect(() => {
-        setLoading(true);
-        // Fetch all books with no filters when the page first loads
-        getBooks()
-            .then(response => {
-                setBooks(response.data.books);
-            })
-            .catch(err => {
-                setError('Failed to load books. Please try refreshing the page.');
-                console.error(err);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    }, []); // The empty [] array ensures this runs only once on mount.
-
-    // This function is ONLY called when the form is submitted (i.e., the button is clicked)
-    const handleFilterSubmit = (e) => {
-        e.preventDefault(); // Prevent the browser from reloading
+    const fetchBooks = useCallback(async () => {
         setLoading(true);
         setError('');
+        try {
+            const params = {};
+            if (authorFilter) params.author = authorFilter;
+            if (genreFilter) params.genre = genreFilter;
 
-        // Create a parameters object with the current values from the input fields
-        const params = {};
-        if (authorFilter) params.author = authorFilter;
-        if (genreFilter) params.genre = genreFilter;
+            const { data } = await getBooks(params);
+            setBooks(data.books);
+        } catch (err) {
+            setError('Failed to fetch books');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    }, [authorFilter, genreFilter]);
 
-        // Call the API with the new filters
-        getBooks(params)
-            .then(response => {
-                setBooks(response.data.books);
-            })
-            .catch(err => {
-                setError('Failed to apply filters.');
-                console.error(err);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
+    useEffect(() => {
+        fetchBooks();
+    }, [fetchBooks]);
+
+    const handleFilterSubmit = (e) => {
+        e.preventDefault();
+        fetchBooks();
     };
 
-    // This handler clears the input fields and fetches the full list of books again
-    const handleClearFilters = () => {
-        setAuthorFilter('');
-        setGenreFilter('');
-        setLoading(true);
-        // Fetch with no filters
-        getBooks()
-            .then(response => {
-                setBooks(response.data.books);
-            })
-            .catch(err => {
-                setError('Failed to clear filters.');
-                console.error(err);
-            })
-            .finally(() => {
-                setLoading(false);
-            });
-    };
+    if (loading) return <p className="text-center text-lg font-medium mt-10 text-gray-600">Loading books...</p>;
+    if (error) return <p className="text-center text-red-600 font-semibold mt-10">{error}</p>;
 
     return (
-        <div>
-            <h2>All Books</h2>
+        <div className="max-w-7xl mx-auto px-4 py-8 bg-slate-200">
+            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">All Books</h2>
 
-            {/* The form's onSubmit event is what triggers the filtering */}
-            <form onSubmit={handleFilterSubmit} style={{ marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-
-                {/* Simple text input for author */}
+            {/* Filter Form */}
+            <form
+                onSubmit={handleFilterSubmit}
+                className="flex flex-col md:flex-row justify-center gap-4 mb-10"
+            >
                 <input
                     type="text"
                     placeholder="Filter by author..."
                     value={authorFilter}
                     onChange={(e) => setAuthorFilter(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-1/3"
                 />
-
-                {/* Simple text input for genre */}
                 <input
                     type="text"
                     placeholder="Filter by genre..."
                     value={genreFilter}
                     onChange={(e) => setGenreFilter(e.target.value)}
+                    className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 w-full md:w-1/3"
                 />
-
-                <button type="submit">Filter</button>
-                <button type="button" onClick={handleClearFilters}>Clear Filters</button>
+                <button
+                    type="submit"
+                    className="px-6 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 transition w-full md:w-auto"
+                >
+                    Filter
+                </button>
             </form>
 
-            {/* The rest of the page for displaying books */}
-            {loading && <p>Loading books...</p>}
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px' }}>
-                {!loading && books.length > 0 ? books.map((book) => (
-                    <div key={book._id} style={{ border: '1px solid #ccc', padding: '1rem', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                        <div>
-                            <h3><Link to={`/books/${book._id}`}>{book.title}</Link></h3>
-                            <p>Author: {book.author}</p>
-                            <p>Genre: {book.genre}</p>
+            {/* Book Cards */}
+            <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {!loading && books.length > 0 ? (
+                    books.map((book) => (
+                        <div
+                            key={book._id}
+                            className="bg-white shadow-md hover:shadow-lg transition rounded-lg p-6 flex flex-col justify-between h-full"
+                        >
+                            <div>
+                                <h3 className="text-xl font-bold text-blue-900 hover:underline mb-2">
+                                    <Link to={`/books/${book._id}`}>{book.title}</Link>
+                                </h3>
+                                <p className="text-gray-600">by <span className="font-medium">{book.author}</span></p>
+                                <p className="text-sm text-gray-500 mt-1">Genre: {book.genre}</p>
+                            </div>
+                            <div className="mt-4">
+                                <p className="text-sm font-semibold text-gray-700">
+                                    Rating: {book.averageRating.toFixed(1)} / 5
+                                </p>
+                                <Link
+                                    to={`/books/${book._id}`}
+                                    className="mt-2 inline-block text-sm text-blue-600 font-medium hover:underline"
+                                >
+                                    View Details & Write a Review
+                                </Link>
+                            </div>
                         </div>
-                        <div>
-                            <p style={{ fontWeight: 'bold', marginTop: '1rem' }}>
-                                Rating: {book.averageRating.toFixed(1)} / 5
-                            </p>
-                            <Link to={`/books/${book._id}`} style={{ display: 'block', marginTop: '0.5rem', fontWeight: 'bold' }}>
-                                View Details & Write a Review
-                            </Link>
-                        </div>
-                    </div>
-                )) : !loading && <p>No books found with the current filters.</p>}
+                    ))
+                ) : (
+                    !loading && <p className="text-center text-gray-500 col-span-full">No books found with the current filters.</p>
+                )}
             </div>
         </div>
     );
