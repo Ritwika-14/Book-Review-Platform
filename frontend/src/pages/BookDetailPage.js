@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { getBookById, addReview } from '../api';
 import { AuthContext } from '../context/authContext';
+import StarRating from '../components/StarRating'; // 🌟 Import StarRating component
 
 const BookDetailPage = () => {
   const { id } = useParams();
@@ -61,11 +62,16 @@ const BookDetailPage = () => {
       {book && (
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-2">{book.title}</h2>
-          <p className="text-gray-700"><span className="font-semibold">Author:</span> {book.author}</p>
-          <p className="text-gray-700"><span className="font-semibold">Genre:</span> {book.genre}</p>
-          <h3 className="mt-2 text-lg text-yellow-600 font-medium">
-            Average Rating: {book.averageRating.toFixed(1)} / 5
-          </h3>
+          <p className="text-gray-700">
+            <span className="font-semibold">Author:</span> {book.author}
+          </p>
+          <p className="text-gray-700">
+            <span className="font-semibold">Genre:</span> {book.genre}
+          </p>
+          <div className="mt-2">
+            <StarRating rating={book.averageRating} />
+            <p className="text-sm text-gray-600">({book.averageRating.toFixed(1)} / 5)</p>
+          </div>
         </div>
       )}
 
@@ -117,7 +123,10 @@ const BookDetailPage = () => {
               key={review._id}
               className="border-b border-gray-200 pb-4 mb-4 shadow-sm p-4 bg-white rounded"
             >
-              <p className="font-medium text-yellow-600">Rating: {review.rating}/5</p>
+              <div className="mb-1">
+                <StarRating rating={review.rating} />
+                <p className="text-sm text-gray-500">({review.rating}/5)</p>
+              </div>
               <p className="text-gray-800 mt-1">{review.review_text}</p>
               <p className="text-sm text-gray-500 mt-2">
                 by <span className="font-medium">{review.reviewer.username}</span> on{' '}
