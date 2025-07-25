@@ -3,7 +3,6 @@ import User from '../models/userModel.js';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { validationResult } from 'express-validator';
-const JWT_SECRET="eaff6acad29106d2e782583b9d70996d73c8520851903261ea4904516322a6db1264ef1529e97079fea007345e2211a5b3b0ce8d20c8231b0410c519a8c59b00"
 
 // User Signup
 export const signup = async (req, res) => {
@@ -34,7 +33,7 @@ export const signup = async (req, res) => {
 
         // 6. Create and return a JWT
         const payload = { user: { id: user.id } };
-        jwt.sign(payload, JWT_SECRET, { expiresIn: '5h' }, (err, token) => {
+        jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '5h' }, (err, token) => {
             if (err) throw err;
             res.status(201).json({ token });
         });
@@ -73,7 +72,7 @@ export const login = async (req, res) => {
 
         jwt.sign(
             payload,
-            JWT_SECRET,
+            process.env.JWT_SECRET,
             { expiresIn: '5h' }, // Token expires in 5 hours
             (err, token) => {
                 if (err) throw err;
